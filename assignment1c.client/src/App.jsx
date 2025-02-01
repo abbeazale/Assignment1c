@@ -7,25 +7,32 @@ const VideoPlayer = () => {
     const videoRef = useRef(null);
     const fileInputRef = useRef(null);
 
-    // Handle YouTube URL submission
     const handleYoutubeSubmit = (e) => {
         e.preventDefault();
-        const videoId = getYoutubeId(youtubeUrl);
-        if (videoId) {
-            const embedUrl = `https://www.youtube.com/embed/${videoId}`;
-            console.log("Generated YouTube Embed URL:", embedUrl); // Debugging
-            setVideoSource(embedUrl);
-        } else {
-            console.error("Invalid YouTube URL");
-            alert("Invalid YouTube URL. Please check the link and try again.");
+        try {
+            const videoId = getYoutubeId(youtubeUrl);
+            if (videoId) {
+                // Use HTTPS explicitly and disable JSAPI
+                const embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=0`;
+                console.log("Generated YouTube Embed URL:", embedUrl);
+                setVideoSource(embedUrl);
+            } else {
+                console.error("Invalid YouTube URL");
+                alert("Invalid YouTube URL. Please check the link and try again.");
+            }
+        } catch (error) {
+            console.error("YouTube URL processing error:", error);
+            alert("Error processing YouTube URL");
         }
     };
 
-    // Extract YouTube ID from various URL formats
     const getYoutubeId = (url) => {
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        if (!url) return null;
+
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
         const match = url.match(regExp);
-        return match && match[2].length === 11 ? match[2] : null;
+
+        return (match && match[2].length === 11) ? match[2] : null;
     };
 
     // Handle local file selection
