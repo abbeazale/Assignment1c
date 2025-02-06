@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import './App.css'; // Import your CSS file
+import './App.css';
 
 const VideoPlayer = () => {
     const [videoSource, setVideoSource] = useState('');
@@ -12,9 +12,10 @@ const VideoPlayer = () => {
         try {
             const videoId = getYoutubeId(youtubeUrl);
             if (videoId) {
-                // Use HTTPS explicitly and disable JSAPI
+               //disble js cus sometimes it weird
                 const embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=0`;
                 console.log("Generated YouTube Embed URL:", embedUrl);
+                //set video source
                 setVideoSource(embedUrl);
             } else {
                 console.error("Invalid YouTube URL");
@@ -26,6 +27,7 @@ const VideoPlayer = () => {
         }
     };
 
+    //get video id to create embedded URL
     const getYoutubeId = (url) => {
         if (!url) return null;
 
@@ -35,7 +37,7 @@ const VideoPlayer = () => {
         return (match && match[2].length === 11) ? match[2] : null;
     };
 
-    // Handle local file selection
+    //file handler function
     const handleFileSelect = async (e) => {
         const file = e.target.files[0];
         if (file && file.type.startsWith('video/')) {
@@ -45,25 +47,29 @@ const VideoPlayer = () => {
         }
     };
 
+    //handle the uploading of the file 
     const handleUpload = async (file) => {
         const formData = new FormData();
         formData.append('file', file);
 
         try {
             console.log("Attempting to fetch...");
+            //fetch the video from local folder
             const response = await fetch('https://localhost:7172/api/video/upload', {
                 method: 'POST',
                 body: formData,
                 credentials: 'include'
             });
             console.log("Fetch completed, response received");
+            //response is the file location in the local directory
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(`HTTP error! Status: ${response.status} - ${errorText}`);
             }
 
             const data = await response.json();
-            console.log("Video URL:", data.fileUrl); // Add this line
+            console.log("Video URL:", data.fileUrl); 
+            //set the source 
             setVideoSource(data.fileUrl);
         } catch (error) {
             console.error('Upload failed:', error);
@@ -76,7 +82,7 @@ const VideoPlayer = () => {
         }
     };
 
-    // Toggle between URL and file input
+    //switch between URL and file input
     const showFilePicker = () => {
         fileInputRef.current.click();
     };

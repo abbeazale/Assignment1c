@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add these BEFORE var app = builder.Build();
+
 builder.Services.Configure<IISServerOptions>(options =>
 {
     options.MaxRequestBodySize = int.MaxValue;
@@ -15,36 +15,37 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.Limits.MaxRequestBodySize = 100_000_000; // 100MB
+    serverOptions.Limits.MaxRequestBodySize = 100_000_000;
 });
 
-// If you need to configure form options, do it through MVC options
+
 builder.Services.Configure<Microsoft.AspNetCore.Mvc.MvcOptions>(options =>
 {
     options.MaxModelBindingRecursionDepth = 1000;
 });
 
+//fix cors errors
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
        builder =>
        {
            builder
-               .WithOrigins("https://localhost:16778") // Your React app URL
+               .WithOrigins("https://localhost:16778")
                .AllowAnyMethod()
                .AllowAnyHeader()
                .AllowCredentials();
        });
 });
 
-// Add your other services here
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var app = builder.Build();  // This line makes the service collection read-only
+var app = builder.Build(); 
 
-// Your middleware configuration goes here
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
